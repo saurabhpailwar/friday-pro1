@@ -1,8 +1,8 @@
 [app]
 title = FRIDAY PRO AI
-package.name = fridayproai
-package.domain = com.saurabh.fridaypro
-source.dir =.
+package.name = fridaypro1
+package.domain = com.saurabhpailwar.fridaypro1
+source.dir = .
 source.include_exts = py,png,jpg
 version = 1.0
 requirements = python3,kivy,pyjnius,requests
