@@ -1,4 +1,4 @@
-name: Build FRIDAY PRO APK - Aidl Fixed Final
+name: FRIDAY PRO - All Issues Fixed
 
 on:
   push:
@@ -16,17 +16,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies - All Past Fixes Included
+      - name: 1 & 2 Fix - Queued + libtinfo5 Issue
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk zip unzip autoconf libtool pkg-config zlib1g-dev libncurses-dev libtinfo6 cmake libffi-dev libssl-dev automake
 
-      - name: Install Buildozer - Cython Fixed
+      - name: 3,4,5 Fix - Aidl + sdkmanager Path Issue - Master Buildozer
         run: |
           pip install --upgrade pip
-          pip install cython==0.29.36 buildozer
+          pip install cython==0.29.36
+          pip install https://github.com/kivy/buildozer/archive/master.zip
+          pip install https://github.com/kivy/python-for-android/archive/develop.zip
 
-      - name: Fix All Licenses - Aidl Error Permanent Fix
+      - name: Fix All Licenses
         run: |
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
@@ -35,14 +37,12 @@ jobs:
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1059b8ea686b4" > $ANDROID_HOME/licenses/android-sdk-preview-license
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          # Force install build-tools jisse Aidl milega
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;37.0.0" "build-tools;34.0.0" "platform-tools" || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" "platform-tools" || true
 
-      - name: Build APK - With Retry
+      - name: Build APK
         run: |
-          # Buildozer ke apne SDK ke liye bhi license bana do
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          cp $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
+          cp $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ 2>/dev/null || true
           buildozer android debug
 
       - name: Upload APK
