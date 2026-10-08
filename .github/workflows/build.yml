@@ -1,4 +1,4 @@
-name: FRIDAY PRO - Final Hack Fix
+name: FRIDAY PRO - FINAL ONE SHOT
 
 on:
   push:
@@ -7,48 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v4
+      - name: Build APK One Shot
+        uses: digreatbrian/buildozer-action@v2
         with:
-          python-version: '3.10'
-
-      - name: Install Deps
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-17-jdk zip unzip autoconf libtool pkg-config zlib1g-dev libncurses-dev libtinfo6 cmake libffi-dev libssl-dev
-
-      - name: Install Buildozer Master
-        run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36
-          pip install https://github.com/kivy/buildozer/archive/master.zip
-          pip install https://github.com/kivy/python-for-android/archive/develop.zip
-
-      - name: Accept Licenses
-        run: |
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          mkdir -p $ANDROID_HOME/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
-          echo "24333f8a63b6825ea9c5514f83c1059b8ea686b4" > $ANDROID_HOME/licenses/android-sdk-preview-license
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-      - name: Build APK - sdkmanager Path Hack
-        run: |
-          # YEHI MAIN FIX HAI JO AB TAK MISS HO RAHA THA
-          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-          cp $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
-          chmod +x ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          # Pura cmdline-tools copy taaki lib mile
-          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/
-          cp -r $ANDROID_HOME/cmdline-tools/latest ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest || true
-          
-          # Ab build
-          buildozer android debug
+          python-version: 3.10
+          buildozer_version: master
+          command: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
