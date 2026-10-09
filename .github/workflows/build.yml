@@ -1,1 +1,55 @@
+name: FRIDAY PRO - FINAL FIX
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
+      - name: Install System Deps
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk zip unzip git python3-pip autoconf libtool pkg-config zlib1g-dev libffi-dev libssl-dev libtinfo6 libncurses-dev
+          sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5 || true
+          pip install buildozer cython==0.29.36
+
+      - name: Install Android SDK MANUALLY - Aidl Fix
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          mv cmdline-tools latest
+          mkdir -p $HOME/.buildozer/android/platform/
+          ln -sf $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          mkdir -p $ANDROID_HOME/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          yes | sdkmanager --licenses
+          sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+          ls $ANDROID_HOME/build-tools/33.0.2/ | grep aidl
+          echo "AIDL MIL GAYA!"
+
+      - name: Build APK
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          if [ -f "friday-pro1/buildozer.spec" ]; then cd friday-pro1; fi
+          pwd
+          cat buildozer.spec
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FRIDAY-PRO-APK
+          path: "**/bin/*.apk"
